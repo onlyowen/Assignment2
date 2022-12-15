@@ -121,8 +121,15 @@ public class UserView extends JFrame {
     void sendMessage(){
         System.out.println("-- send message --");
         String data = TweetMessage.getText();
+        System.out.print("log: update success!\n");
+        for (int i = 0; i < this.user.followList.size();i++){
+
+            this.user.followList.get(i).setUpdateTime(managementBoard.dataTime());
+            System.out.println(this.user.followList.get(i));
+        }
         if(data.length() > 0){
             user.sendMessage(data);
+
             TweetMessage.setText("");
         }
         updateNewsFeed(true);
@@ -137,13 +144,14 @@ public class UserView extends JFrame {
         this.setSize(420,500);
         this.setVisible(isVisiable);
     }
-//    public static void main(String[] args) {
-//        User currentUser = new User("Tom");
-//        User followUser = new User("Bob");
-//        currentUser.follow(followUser);
-//
-//        followUser.sendMessage("happy");
-//        UserView userView = new UserView(currentUser,true);
-//
-//    }
+
+  /*  public static void main(String[] args) {
+        User currentUser = new User("Tom");
+        User followUser = new User("Bob");
+        currentUser.follow(followUser);
+
+        followUser.sendMessage("happy");
+        UserView userView = new UserView(currentUser,true);
+
+    }*/
 }

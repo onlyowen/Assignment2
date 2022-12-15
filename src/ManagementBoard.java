@@ -4,10 +4,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.awt.*;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
 
 public class ManagementBoard extends JFrame {
@@ -17,10 +15,12 @@ public class ManagementBoard extends JFrame {
     JFrame jFrame;
     TextArea textAreaUserId;
     JButton buttonAddUser;
-
+    JButton buttonCheckUser;
+    JButton buttonCheckGroup;
     TextArea textAreaGroupId;
     JButton buttonAddGroup;
     JButton buttonOpenUserView;
+    JButton buttonLastUpdateUser;
 
     JButton buttonShowUserTotal;
     JButton buttonShowGroupTotal;
@@ -28,7 +28,7 @@ public class ManagementBoard extends JFrame {
     JButton buttonShowPositivePercentage;
     JTree tree;
 //    Set<String> userIdSet;
-    Set<String> groupIdSet;
+    Set<Group> groupIdSet;
     List<User>userList;
     List<UserView>userViewList;
     List<Message>messageList;
@@ -40,28 +40,36 @@ public class ManagementBoard extends JFrame {
 
         return userView;
     }
+    User user1 = new User("stu1",dataTime(),dataTime());
+    User user2 = new User("stu2",dataTime(),dataTime());
+    User user3 = new User("stu3",dataTime(),dataTime());
+
+    User user8 = new User("stu8",dataTime(),dataTime());
+    User user9 = new User("stu9",dataTime(),dataTime());
+    User user10 = new User("stu10",dataTime(),dataTime());
+
     public void createTreeView(){
-        DefaultMutableTreeNode node1 = new DefaultMutableTreeNode("CS356");
-        User user1 = new User("stu1");
-        User user2 = new User("stu2");
-        User user3 = new User("stu3");
 
-        User user8 = new User("stu8");
-        User user9 = new User("stu9");
-        User user10 = new User("stu10");
+        for (int i = 0;i < groupIdSet.size();i++){
 
-        User john = new User("John");
+        }
+        Group gp1 = new Group("Css",dataTime());
+        Group gp2 = new Group("Cs2",dataTime());
+        Group gp3 = new Group("root",dataTime());
+        DefaultMutableTreeNode node1 = new DefaultMutableTreeNode(gp1);
+
+        User john = new User("John",dataTime(),dataTime());
         node1.add(new DefaultMutableTreeNode(user1));
         node1.add(new DefaultMutableTreeNode(user2));
         node1.add(new DefaultMutableTreeNode(user3));
 
-        DefaultMutableTreeNode node2 = new DefaultMutableTreeNode("CS356Session01");
+        DefaultMutableTreeNode node2 = new DefaultMutableTreeNode(gp2);
 
         node2.add(new DefaultMutableTreeNode(user8));
         node2.add(new DefaultMutableTreeNode(user9));
         node2.add(new DefaultMutableTreeNode(user10));
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Root");
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode(gp3);
 
         top.add(new DefaultMutableTreeNode(john));
         userList.add(john);
@@ -86,9 +94,9 @@ public class ManagementBoard extends JFrame {
         createUserView(user10);
 
 
-        groupIdSet.add("CS356");
-        groupIdSet.add("CS356Session01");
-        groupIdSet.add("Root");
+        groupIdSet.add(gp1);
+        groupIdSet.add(gp2);
+        groupIdSet.add(gp3);
         top.add(node1);
         top.add(node2);
         tree = new JTree(top);
@@ -110,7 +118,8 @@ public class ManagementBoard extends JFrame {
                     System.out.println("choose user: " + user.toString());
                 }
                 else {
-                    System.out.println("choose group: " + object.toString());
+                    Group gp = (Group) object;
+                    System.out.println("choose group: " + gp.getName()+"  "+gp.getCreatTime());
                 }
 
             }
@@ -119,11 +128,67 @@ public class ManagementBoard extends JFrame {
     int getIndexByUserId(String id){
         for(int i = 0; i < userList.size(); i++){
             if(userList.get(i).id.equals(id)){
+
                 return i;
             }
         }
         return -1;
     }
+
+    void showLastUpdate(){
+        List<User> lists = userList;
+        SortClass sortClass = new SortClass();
+        Collections.sort(lists,sortClass);
+        System.out.println("last update user:");
+        System.out.println(lists.get(0));
+
+    }
+
+    void checkUser(){
+
+        System.out.println("--check user--");
+        String userId = textAreaUserId.getText();
+        System.out.println("user id: "+userId+"");
+        if(userId.equals("")){
+            System.out.println("error: cannot be empty");
+            return;
+        }
+        if(getIndexByUserId(userId) != -1){
+            System.out.println("error: user id already exists");
+            return;
+        }
+        if (userId.contains(" ")){
+            System.out.println("error: include spaces");
+            return;
+        }
+
+        System.out.println("success:this id can use!");
+
+    }
+
+    void checkGroup(){
+        System.out.println("--check group--");
+        String name = textAreaGroupId.getText();
+        Group groupId = new Group(name,dataTime());
+        if(groupId.equals("")){
+            return;
+        }
+        for (Group group:groupIdSet){
+            if(group.getName().equals(groupId.getName())){
+                System.out.println("error: group id already exists");
+                return;
+            }
+
+        }
+        if (groupId.getName().contains(" ")){
+            System.out.println("error: include spaces");
+            return;
+        }
+        System.out.println("success:this id can use!");
+
+    }
+
+
     void addUser(){
         System.out.println("--add user--");
         String userId = textAreaUserId.getText();
@@ -131,10 +196,16 @@ public class ManagementBoard extends JFrame {
             return;
         }
         if(getIndexByUserId(userId) != -1){
-            System.out.println("group id already exists");
+            System.out.println("error: group id already exists");
             return;
         }
-        User user = new User(userId);
+        if (userId.contains(" ")){
+            System.out.println("error: include spaces");
+            return ;
+        }
+        User user = new User(userId,dataTime(),dataTime());
+        System.out.println("new user"+user);
+
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (node == null)
             return;
@@ -157,13 +228,28 @@ public class ManagementBoard extends JFrame {
     }
     void addGroup(){
         System.out.println("--add group--");
-        String groupId = textAreaGroupId.getText();
+
+        String name = textAreaGroupId.getText();
+        Group groupId = new Group(name,dataTime());
         if(groupId.equals("")){
             return;
         }
-        if(groupIdSet.contains(groupId)){
-            System.out.println("group id already exists");
-            return;
+
+        for (Group group:groupIdSet){
+            if(group.getName().equals(groupId.getName())){
+                System.out.println("error: group id already exists");
+                return;
+            }
+
+        }
+        if(groupIdSet.contains(groupId.getName())){
+
+
+        }
+
+        if (groupId.getName().contains(" ")){
+            System.out.println("error: include spaces");
+            return ;
         }
 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -176,10 +262,8 @@ public class ManagementBoard extends JFrame {
         DefaultMutableTreeNode group = new DefaultMutableTreeNode(groupId);
         node.add(group);
         group.add(new DefaultMutableTreeNode("Empty"));
-        groupIdSet.add(groupId);
         textAreaGroupId.setText("");
         tree.updateUI();
-
     }
     void updateAllFollowers(User user){
         for(int i = 0; i < user.fanList.size(); i++){
@@ -214,6 +298,8 @@ public class ManagementBoard extends JFrame {
             }
         }
     }
+
+
     void init(){
 //        userIdSet = new HashSet<>();
         groupIdSet = new HashSet<>();
@@ -221,7 +307,7 @@ public class ManagementBoard extends JFrame {
         messageList = new ArrayList<>();
         userViewList = new ArrayList<>();
 
-        positiveMessageList=List.of("good","great","happy","joyful");
+        positiveMessageList=this.listOf("good","great","happy","joyful");
         //Left
         createTreeView();
         //right up
@@ -230,23 +316,40 @@ public class ManagementBoard extends JFrame {
         jFrame.add(textAreaUserId);
 
         buttonAddUser = new JButton("Add User");
-        buttonAddUser.setBounds(500+300,10,300,100);
+        buttonAddUser.setBounds(500+300,10,150,100);
         buttonAddUser.addActionListener(e -> addUser());
         jFrame.add(buttonAddUser);
+
+        buttonCheckUser = new JButton("Check User");
+        buttonCheckUser.setBounds(500+300+150+30,10,150,100);
+        buttonCheckUser.addActionListener(e -> checkUser());
+        jFrame.add(buttonCheckUser);
+
 
         textAreaGroupId = new TextArea();
         textAreaGroupId.setBounds(500,10+100,300,100);
         jFrame.add(textAreaGroupId);
 
         buttonAddGroup = new JButton("Add Group");
-        buttonAddGroup.setBounds(500+300,10+100,300,100);
+        buttonAddGroup.setBounds(500+300,10+100,150,100);
         buttonAddGroup.addActionListener(e -> addGroup());
         jFrame.add(buttonAddGroup);
 
+        buttonCheckGroup = new JButton("Check Group");
+        buttonCheckGroup.setBounds(500+300+180,10+100,150,100);
+        buttonCheckGroup.addActionListener(e -> checkGroup());
+        jFrame.add(buttonCheckGroup);
+
+
+
+        buttonLastUpdateUser = new JButton("Last update user");
         buttonOpenUserView = new JButton("Open User View");
         buttonOpenUserView.setBounds(500,10+100+100+30,300*2,100);
+        buttonLastUpdateUser.setBounds(500,10+100+100+150,300*2,100);
         buttonOpenUserView.addActionListener(e -> openUserView());
+        buttonLastUpdateUser.addActionListener(e->showLastUpdate());
         jFrame.add(buttonOpenUserView);
+        jFrame.add(buttonLastUpdateUser);
 
         //right down
         buttonShowUserTotal = new JButton("Show User Total");
@@ -283,8 +386,8 @@ public class ManagementBoard extends JFrame {
     void showGroupTotal(){
         System.out.println("showGroupTotal");
         List<String>list=new ArrayList<>();
-        for(String s:groupIdSet){
-            list.add(s);
+        for(Group s:groupIdSet){
+            list.add(s.getName());
         }
         ShowTotalView showTotalView = new ShowTotalView("Show Group Total",list);
     }
@@ -326,4 +429,25 @@ public class ManagementBoard extends JFrame {
 
         setVisible(true);
     }
+    @SafeVarargs
+    public static <T> List<T> listOf(T... elements) {
+        List<T> list = new ArrayList<>();
+        for (T e : elements)
+            list.add(e);
+        return Collections.unmodifiableList(list);
+    }
+
+    public String  dataTime(){
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+            String dateStr = sdf.format(date);
+            System.out.println(dateStr);
+            return  dateStr;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
